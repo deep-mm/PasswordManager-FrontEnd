@@ -46,7 +46,7 @@ namespace PasswordManager.Data
             catch (Exception e)
             {
                 Console.WriteLine("Exception occured while getting secrets: " + e);
-                return null;
+                throw new Exception("GetSecrets(): Exception occured while getting secrets", e);
             }
         }
 
