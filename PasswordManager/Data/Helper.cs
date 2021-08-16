@@ -72,7 +72,7 @@ namespace PasswordManager.Data
             catch (Exception e)
             {
                 Console.WriteLine("Failed to Encrypt Secret. Exception Occured: " + e);
-                throw new Exception("Failed to Encrypt Secret. Exception Occured: " + e);
+                throw new Exception($"Failed to Encrypt Secret. encryptionkeyUri is {encryptionKeyUri} & decryptedSecret value is {decryptedSecret}. Exception Occured: " + e);
             }
         }
     }
