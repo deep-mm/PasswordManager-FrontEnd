@@ -1,0 +1,205 @@
+﻿@page "/fetchdata"
+
+@using PasswordManager.Data
+@inject SecretService SecretService
+
+<h1>KeyVault Secrets</h1>
+
+<p>All your secrets in one place.</p>
+
+@if (masterKey == null)
+{
+    <div class="modal fade show d-block" id="exampleModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="titleLabel">Enter Masterkey</h5>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model=@model OnValidSubmit=@FormSubmitted>
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <label>
+                            Master Key:
+                            <InputText @bind-Value=masterKey class="form-control" />
+                        </label>
+                        <button type="submit" class="btn btn-primary" @onclick="@submitKey">Submit</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else if (secrets == null)
+{
+    <p>Loading Secrets...</p>
+}
+else if (update != false)
+{
+    <EditForm Model=@model OnValidSubmit=@UpdateFormSubmitted>
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="form-group">
+            <label>
+                Secret Name:
+                <InputText @bind-Value=model.secretName class="form-control" />
+            </label>
+        </div>
+        <div class="form-group">
+            <label>
+                Secret Value:
+                <InputText @bind-Value=model.secretValue class="form-control" />
+            </label>
+        </div>
+        <input type="submit" class="btn btn-primary" value="Save" />
+        <NavLink href="" class="btn btn-primary"
+                 role="button" @onclick="CancelUpdate">Cancel</NavLink>
+    </EditForm>
+}
+else
+{
+    @if (showFlag == 0)
+    {
+        <button class="btn btn-success" @onclick="Show">Show Secrets</button>
+    }
+    else
+    {
+        <button class="btn btn-danger" @onclick="Show">Hide Secrets</button>
+    }
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Secret Name</th>
+                <th>Secret Value</th>
+                <th>Update</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var secret in secrets)
+            {
+                <tr>
+                    <td>@secret.secretName</td>
+                    @if (showFlag == 0)
+                    {
+                        <td>******</td>
+                    }
+                    else
+                    {
+                        <td>@secret.secretValue</td>
+                    }
+                    <td><span class="oi oi-pencil" aria-hidden="true" @onclick="() => Delete(secret)"></span></td>
+                    <td><span class="oi oi-delete" aria-hidden="true" @onclick="() => Delete(secret)"></span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [CascadingParameter]
+    public Notification notification { get; set; }
+
+    private Secret[] secrets;
+    private Secret model = new Secret();
+    public int showFlag = 0;
+    public string masterKey = null;
+
+    public bool update = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        secrets = null;
+    }
+
+    async Task FormSubmitted(EditContext editContext)
+    {
+    }
+
+    async Task UpdateFormSubmitted(EditContext editContext)
+    {
+        try
+        {
+            bool formIsValid = editContext.Validate();
+            if (formIsValid && editContext.IsModified())
+            {
+                notification.DisplayLoading();
+                await SecretService.AddSecret(model, masterKey);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            notification.ProcessError(ex);
+        }
+        finally
+        {
+            notification.HideLoading();
+            update = false;
+        }
+    }
+
+    public void Show()
+    {
+        if (showFlag == 0)
+        {
+            showFlag = 1;
+        }
+        else
+        {
+            showFlag = 0;
+        }
+    }
+
+    public async Task submitKey()
+    {
+        StateHasChanged();
+        if (masterKey != null && masterKey.Length > 1)
+        {
+            try
+            {
+                notification.DisplayLoading();
+                secrets = await SecretService.GetSecrets(masterKey);
+            }
+            catch (Exception e)
+            {
+                notification.ProcessError(e);
+            }
+            finally
+            {
+                notification.HideLoading();
+            }
+        }
+    }
+
+    public async Task Delete(Secret secret)
+    {
+        try
+        {
+            notification.DisplayLoading();
+            await SecretService.DeleteSecret(secret, masterKey);
+        }
+        catch (Exception e)
+        {
+            notification.ProcessError(e);
+        }
+        finally
+        {
+            notification.HideLoading();
+        }
+    }
+
+    public async Task Update(Secret secret)
+    {
+        update = true;
+        model.secretName = secret.secretName;
+        model.secretValue = secret.secretValue;
+        StateHasChanged();
+    }
+
+    public async Task CancelUpdate()
+    {
+        update = false;
+        StateHasChanged();
+    }
+}
