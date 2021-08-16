@@ -33,6 +33,7 @@
 else if (secrets == null)
 {
     <p>Loading Secrets...</p>
+    submitKey();
 }
 else if (update != false)
 {
@@ -88,7 +89,7 @@ else
                     {
                         <td>@secret.secretValue</td>
                     }
-                    <td><span class="oi oi-pencil" aria-hidden="true" @onclick="() => Delete(secret)"></span></td>
+                    <td><span class="oi oi-pencil" aria-hidden="true" @onclick="() => Update(secret)"></span></td>
                     <td><span class="oi oi-delete" aria-hidden="true" @onclick="() => Delete(secret)"></span></td>
                 </tr>
             }
@@ -106,6 +107,8 @@ else
     public string masterKey = null;
 
     public bool update = false;
+
+    public bool flag = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -153,12 +156,12 @@ else
 
     public async Task submitKey()
     {
-        StateHasChanged();
-        if (masterKey != null && masterKey.Length > 1)
+        if (masterKey != null && masterKey.Length > 1 && !flag)
         {
             try
             {
                 notification.DisplayLoading();
+                flag = true;
                 secrets = await SecretService.GetSecrets(masterKey);
             }
             catch (Exception e)
@@ -168,6 +171,7 @@ else
             finally
             {
                 notification.HideLoading();
+                flag = false;
                 StateHasChanged();
             }
         }

@@ -1,5 +1,3 @@
-using System;
-
 namespace PasswordManager.Data
 {
     public class Secret

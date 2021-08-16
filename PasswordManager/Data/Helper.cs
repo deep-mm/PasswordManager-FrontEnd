@@ -4,8 +4,6 @@ using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -24,7 +22,7 @@ namespace PasswordManager.Data
             Configuration = configuration;
             encryptionKeyUri = configuration["keyvaultEncryptionKeyUri"];
         }
-        
+
         public async Task<HttpClient> SetTokenAsync(HttpClient httpClient)
         {
             try
@@ -50,7 +48,7 @@ namespace PasswordManager.Data
             }
         }
 
-        public async Task<string> DecryptSecret (string encryptedSecret)
+        public async Task<string> DecryptSecret(string encryptedSecret)
         {
             try
             {
