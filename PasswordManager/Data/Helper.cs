@@ -15,12 +15,12 @@ namespace PasswordManager.Data
         public IConfiguration Configuration { get; }
         public static AzureServiceTokenProvider azureServiceTokenProvider = new AzureServiceTokenProvider();
         public static KeyVaultClient keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
-        public static string encryptionKeyUri = "";
+        public string encryptionKeyUri { get; }
 
         public Helper(IConfiguration configuration)
         {
-            Configuration = configuration;
-            encryptionKeyUri = configuration["keyvaultEncryptionKeyUri"];
+            this.Configuration = configuration;
+            this.encryptionKeyUri = configuration["keyvaultEncryptionKeyUri"];
         }
 
         public async Task<HttpClient> SetTokenAsync(HttpClient httpClient)

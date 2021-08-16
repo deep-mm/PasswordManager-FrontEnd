@@ -33,10 +33,10 @@ namespace PasswordManager.Data
                 var stringData = await response.Content.ReadAsStringAsync();
 
                 IEnumerable<Secret> data = JsonConvert.DeserializeObject<IEnumerable<Secret>>(stringData);
-                //foreach (Secret secret in data)
-                //{
-                //    secret.secretValue = await helper.DecryptSecret(secret.secretValue);
-                //}
+                foreach (Secret secret in data)
+                {
+                    secret.secretValue = await helper.DecryptSecret(secret.secretValue);
+                }
                 return data.ToArray();
             }
             catch (JsonSerializationException exception)
