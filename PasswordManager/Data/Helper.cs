@@ -52,7 +52,7 @@ namespace PasswordManager.Data
         {
             try
             {
-                string decryptedValue = System.Text.Encoding.UTF8.GetString(keyVaultClient.DecryptAsync(encryptionKeyUri, JsonWebKeyEncryptionAlgorithm.RSAOAEP, System.Text.Encoding.UTF8.GetBytes(encryptedSecret)).GetAwaiter().GetResult().Result);
+                string decryptedValue = System.Text.Encoding.UTF8.GetString(keyVaultClient.DecryptAsync(encryptionKeyUri, JsonWebKeyEncryptionAlgorithm.RSAOAEP, Convert.FromBase64String(encryptedSecret)).GetAwaiter().GetResult().Result);
                 return decryptedValue;
             }
             catch (Exception e)
@@ -66,13 +66,13 @@ namespace PasswordManager.Data
         {
             try
             {
-                string encryptedValue = System.Text.Encoding.UTF8.GetString(keyVaultClient.EncryptAsync(encryptionKeyUri, JsonWebKeyEncryptionAlgorithm.RSAOAEP, System.Text.Encoding.UTF8.GetBytes(decryptedSecret)).GetAwaiter().GetResult().Result);
+                var encryptedValue = Convert.ToBase64String(keyVaultClient.EncryptAsync(encryptionKeyUri, JsonWebKeyEncryptionAlgorithm.RSAOAEP, System.Text.Encoding.UTF8.GetBytes(decryptedSecret)).GetAwaiter().GetResult().Result);
                 return encryptedValue;
             }
             catch (Exception e)
             {
                 Console.WriteLine("Failed to Encrypt Secret. Exception Occured: " + e);
-                throw new Exception($"Failed to Encrypt Secret. encryptionkeyUri is {encryptionKeyUri} & decryptedSecret value is {decryptedSecret}. Exception Occured: " + e);
+                throw new Exception("Failed to Encrypt Secret. Exception Occured: " + e);
             }
         }
     }
