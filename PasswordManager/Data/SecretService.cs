@@ -52,63 +52,101 @@ namespace PasswordManager.Data
 
         public async Task<bool> AddSecret(Secret secret, string masterKey)
         {
-            HttpClient httpClient = new HttpClient();
-            httpClient = await helper.SetTokenAsync(httpClient);
-
-            secret.secretValue = await helper.EncryptSecret(secret.secretValue);
-
-            var myContent = JsonConvert.SerializeObject(secret);
-            var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-            var response = await httpClient.PostAsync($"{apiUrl}secret?code=" + masterKey, byteContent);
-
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                throw new Exception("Add Secret failed: {response.StatusCode}");
+                HttpClient httpClient = new HttpClient();
+                httpClient = await helper.SetTokenAsync(httpClient);
+
+                secret.secretValue = await helper.EncryptSecret(secret.secretValue);
+
+                var myContent = JsonConvert.SerializeObject(secret);
+                var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
+                var byteContent = new ByteArrayContent(buffer);
+                byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                var response = await httpClient.PostAsync($"{apiUrl}secret?code=" + masterKey, byteContent);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception($"Add Secret failed: {response.StatusCode}");
+                }
+                return true;
             }
-            return true;
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception occured while adding secret: " + e);
+                throw new Exception("AddSecret(): Exception occured while adding secrets", e);
+            }
         }
 
         public async Task<bool> UpdateSecret(Secret secret, string masterKey)
         {
-            HttpClient httpClient = new HttpClient();
-            httpClient = await helper.SetTokenAsync(httpClient);
-
-            secret.secretValue = await helper.EncryptSecret(secret.secretValue);
-
-            var myContent = JsonConvert.SerializeObject(secret);
-            var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-            var response = await httpClient.PutAsync($"{apiUrl}secret/" + secret.secretName + "?code=" + masterKey, byteContent);
-
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                throw new Exception("Update Secret failed: {response.StatusCode}");
+                HttpClient httpClient = new HttpClient();
+                httpClient = await helper.SetTokenAsync(httpClient);
+
+                secret.secretValue = await helper.EncryptSecret(secret.secretValue);
+
+                var myContent = JsonConvert.SerializeObject(secret);
+                var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
+                var byteContent = new ByteArrayContent(buffer);
+                byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                var response = await httpClient.PutAsync($"{apiUrl}secret/" + secret.secretName + "?code=" + masterKey, byteContent);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Update Secret failed: {response.StatusCode}");
+                }
+                return true;
             }
-            return true;
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception occured while updating secret: " + e);
+                throw new Exception("UpdateSecret(): Exception occured while updating secrets", e);
+            }
         }
 
         public async Task<bool> DeleteSecret(Secret secret, string masterKey)
         {
-            HttpClient httpClient = new HttpClient();
-            httpClient = await helper.SetTokenAsync(httpClient);
-
-            var myContent = JsonConvert.SerializeObject(secret);
-            var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
-            var byteContent = new ByteArrayContent(buffer);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-            var response = await httpClient.DeleteAsync($"{apiUrl}secret/" + secret.secretName + "?code=" + masterKey);
-
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                throw new Exception("Delete Secret failed: {response.StatusCode}");
+                HttpClient httpClient = new HttpClient();
+                httpClient = await helper.SetTokenAsync(httpClient);
+
+                var myContent = JsonConvert.SerializeObject(secret);
+                var buffer = System.Text.Encoding.UTF8.GetBytes(myContent);
+                var byteContent = new ByteArrayContent(buffer);
+                byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                var response = await httpClient.DeleteAsync($"{apiUrl}secret/" + secret.secretName + "?code=" + masterKey);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new Exception("Delete Secret failed: {response.StatusCode}");
+                }
+                return true;
             }
-            return true;
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception occured while deleting secret: " + e);
+                throw new Exception("DeleteSecret(): Exception occured while deleting secrets", e);
+            }
+        }
+
+        public async Task<Secret[]> FilterSecrets(Secret[] secrets, string searchKey)
+        {
+            try
+            {
+                IEnumerable<Secret> arrayList = secrets.AsEnumerable<Secret>();
+                arrayList = arrayList.Where(p => p.secretName.Contains(searchKey));
+                return arrayList.ToArray();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Excpetion occured while filtering secrets. Exception: " + e);
+            }
         }
     }
 }
