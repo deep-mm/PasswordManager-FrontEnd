@@ -22,13 +22,13 @@ jobs:
         dotnet-version: '5.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore PasswordManager/PasswordManager.sln
+      run: dotnet restore PasswordManager.sln
 
     - name: Build application
-      run: dotnet build PasswordManager/PasswordManager.sln --configuration Release
+      run: dotnet build PasswordManager.sln --configuration Release
 
     - name: Run static analysis tests
-      run: dotnet tool install -g dotnet-format && dotnet format --check PasswordManager/PasswordManager.sln
+      run: dotnet tool install -g dotnet-format && dotnet format --check PasswordManager.sln
 
     - name: Run unit tests
-      run: dotnet test PasswordManager/PasswordManager.sln --configuration Release --no-build --verbosity normal
+      run: dotnet test PasswordManager.sln --configuration Release --no-build --verbosity normal
