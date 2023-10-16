@@ -1,0 +1,34 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore PasswordManager/PasswordManager.sln
+
+    - name: Build application
+      run: dotnet build PasswordManager/PasswordManager.sln --configuration Release
+
+    - name: Run static analysis tests
+      run: dotnet tool install -g dotnet-format && dotnet format --check PasswordManager/PasswordManager.sln
+
+    - name: Run unit tests
+      run: dotnet test PasswordManager/PasswordManager.sln --configuration Release --no-build --verbosity normal
