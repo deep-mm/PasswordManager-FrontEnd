@@ -26,3 +26,9 @@ jobs:
 
     - name: Run tests
       run: dotnet test PasswordManager.sln --configuration Release --no-build
+
+    - name: Static Analysis
+      run: dotnet tool install -g dotnet-format && dotnet format --check --verbosity diagnostic --exclude .github
+
+    - name: Lint Errors
+      run: dotnet tool install -g dotnet-format && dotnet format --check --verbosity diagnostic --exclude .github
